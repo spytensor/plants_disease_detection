@@ -3,6 +3,8 @@
 
 很早之前开源过 pytorch 进行图像分类的代码（[从实例掌握 pytorch 进行图像分类](http://spytensor.com/index.php/archives/21/)），历时两个多月的学习和总结，近期也做了升级。在此基础上写了一个 Ai Challenger 农作物竞赛的 baseline 供大家交流。
 
+个人博客：[超杰](www.spytensor.com)
+
 比赛地址：[农作物病害检测](https://challenger.ai/competition/pdr2018)
 
 完整代码地址：[plants_disease_detection](https://github.com/spytensor/plants_disease_detection)
