@@ -18,7 +18,7 @@
 
 ## 提醒
 
-`main.py` 中的test函数已经修正，执行后在 `./submit/`中会得到提交格式的 json 文件,先已支持 Focalloss ，需要的自行修改一下就可以了。
+`main.py` 中的test函数已经修正，执行后在 `./submit/`中会得到提交格式的 json 文件,先已支持 Focalloss 和交叉验证，需要的自行修改一下就可以了。
 依赖中的 pytorch 版本请保持一致，不然可能会一些小 BUG。
 
 ### 1. 依赖
