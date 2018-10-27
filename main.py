@@ -60,26 +60,33 @@ def test(test_loader,model,folds):
     csv_map = OrderedDict({"filename":[],"probability":[]})
     model.cuda()
     model.eval()
-    for i,(input,filepath) in enumerate(tqdm(test_loader)):
-        #3.2 change everything to cuda and get only basename
-        filepath = [os.path.basename(x) for x in filepath]
-        with torch.no_grad():
-            image_var = Variable(input).cuda()
-            #3.3.output
-            #print(filepath)
-            #print(input,input.shape)
-            y_pred = model(image_var)
-            #print(y_pred.shape)
-            smax = nn.Softmax(1)
-            smax_out = smax(y_pred)
-        #3.4 save probability to csv files
-        csv_map["filename"].extend(filepath)
-        for output in smax_out:
-            prob = ";".join([str(i) for i in output.data.tolist()])
-            csv_map["probability"].append(prob)
-    result = pd.DataFrame(csv_map)
-    result["probability"] = result["probability"].map(lambda x : [float(i) for i in x.split(";")])
-    result.to_csv("./submit/{}_submission.csv" .format(config.model_name + "_" + str(folds)),index=False,header = None)
+    with open("./submit/baseline.json","w",encoding="utf-8") as f :
+        submit_results = []
+        for i,(input,filepath) in enumerate(tqdm(test_loader)):
+            #3.2 change everything to cuda and get only basename
+            filepath = [os.path.basename(x) for x in filepath]
+            with torch.no_grad():
+                image_var = Variable(input).cuda()
+                #3.3.output
+                #print(filepath)
+                #print(input,input.shape)
+                y_pred = model(image_var)
+                #print(y_pred.shape)
+                smax = nn.Softmax(1)
+                smax_out = smax(y_pred)
+            #3.4 save probability to csv files
+            csv_map["filename"].extend(filepath)
+            for output in smax_out:
+                prob = ";".join([str(i) for i in output.data.tolist()])
+                csv_map["probability"].append(prob)
+        result = pd.DataFrame(csv_map)
+        result["probability"] = result["probability"].map(lambda x : [float(i) for i in x.split(";")])
+        for index, row in result.iterrows():
+            pred_label = np.argmax(row['probability'])
+            if pred_label > 43:
+                pred_label = pred_label + 2
+            submit_results.append({"image_id":row['filename'],"disease_class":np.argmax(row['probability'])})
+        json.dump(submit_results,f,ensure_ascii=False,cls = MyEncoder)
 
 #4. more details to build main function    
 def main():
