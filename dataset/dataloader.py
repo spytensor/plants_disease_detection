@@ -2,7 +2,6 @@ from torch.utils.data import Dataset
 from torchvision import transforms as T 
 from config import config
 from PIL import Image 
-from dataset.aug import *
 from itertools import chain 
 from glob import glob
 from tqdm import tqdm
