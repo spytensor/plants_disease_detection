@@ -85,7 +85,7 @@ def test(test_loader,model,folds):
             pred_label = np.argmax(row['probability'])
             if pred_label > 43:
                 pred_label = pred_label + 2
-            submit_results.append({"image_id":row['filename'],"disease_class":np.argmax(row['probability'])})
+            submit_results.append({"image_id":row['filename'],"disease_class":pred_label})
         json.dump(submit_results,f,ensure_ascii=False,cls = MyEncoder)
 
 #4. more details to build main function    
