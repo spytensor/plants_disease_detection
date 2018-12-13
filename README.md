@@ -4,7 +4,7 @@
 
 很早之前开源过 pytorch 进行图像分类的代码（[从实例掌握 pytorch 进行图像分类](http://spytensor.com/index.php/archives/21/)），历时两个多月的学习和总结，近期也做了升级。在此基础上写了一个 Ai Challenger 农作物竞赛的 baseline 供大家交流。
 
-**更新2**
+**2018 年 12 月 13 日更新**
 
 新增数据集下载链接：[百度网盘](https://pan.baidu.com/s/184jJKoPM8Am837UcMe69Z) 提取码：5xbk
 数据集是 10 月 23 日 更新后的新数据集，包含训练集、验证集、测试集A/B.
@@ -14,7 +14,7 @@
 
 代码: [pytorch-image-classification](https://github.com/spytensor/pytorch-image-classification)
 
-**更新1**
+**2018年 10 月 30 日更新**
 
 新增 `data_aug.py` 用于线下数据增强，由于时间问题，这个比赛不再做啦，这些增强方式大家有需要可以研究一下，支持的增强方式：
 
