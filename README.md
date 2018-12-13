@@ -1,9 +1,20 @@
+### 声明：开源只是为了方便大家交流学习，数据请勿用于商业用途！！！！
 
 **背景**
 
 很早之前开源过 pytorch 进行图像分类的代码（[从实例掌握 pytorch 进行图像分类](http://spytensor.com/index.php/archives/21/)），历时两个多月的学习和总结，近期也做了升级。在此基础上写了一个 Ai Challenger 农作物竞赛的 baseline 供大家交流。
 
-**更新**
+**更新2**
+
+新增数据集下载链接：[百度网盘](https://pan.baidu.com/s/184jJKoPM8Am837UcMe69Z) 提取码：5xbk
+数据集是 10 月 23 日 更新后的新数据集，包含训练集、验证集、测试集A/B.
+另外最近有同学拿到类似的数据，想做分类的任务，但是这份代码是针对这次比赛开源的，在数据读取方式上会有区别，对于新手来说不太友好，我开源了一份针对图像分类任务的代码，并附上简单教程，相信看完后能比较轻松使用 pytorch 进行图像分类。
+
+教程: [从实例掌握 pytorch 进行图像分类](http://www.spytensor.com/index.php/archives/21/)
+
+代码: [pytorch-image-classification](https://github.com/spytensor/pytorch-image-classification)
+
+**更新1**
 
 新增 `data_aug.py` 用于线下数据增强，由于时间问题，这个比赛不再做啦，这些增强方式大家有需要可以研究一下，支持的增强方式：
 
@@ -80,4 +91,4 @@
 
 全部数据集
 
-![all](http://www.spytensor.com/images/plants/all.png)
+![all](http://www.spytensor.com/images/plants/all.png
