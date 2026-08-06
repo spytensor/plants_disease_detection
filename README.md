@@ -1,94 +1,131 @@
-### 声明：开源只是为了方便大家交流学习，数据请勿用于商业用途！！！！转载或解读请注明出处，谢谢！
+# 农作物病害检测 (Plants Disease Detection)
 
-**背景**
+> AI Challenger 2018 [农作物病害检测](https://challenger.ai/competition/pdr2018) 竞赛 baseline，基于 PyTorch 的图像分类方案。
+>
+> **声明**：开源仅供交流学习，数据请勿用于商业用途。转载或解读请注明出处，谢谢！
 
-很早之前开源过 pytorch 进行图像分类的代码（[从实例掌握 pytorch 进行图像分类](http://spytensor.com/index.php/archives/21/)），历时两个多月的学习和总结，近期也做了升级。在此基础上写了一个 Ai Challenger 农作物竞赛的 baseline 供大家交流。
+**成绩**：线上 0.8805，线下 0.875（因划分存在随机性，复现可能有波动，已尽量固定随机种子）。
 
-**2018 年 12 月 13 日更新**
+---
 
-新增数据集下载链接：[百度网盘]( https://pan.baidu.com/s/16f1nQchS-zBtzSWn9Guyyg ) 提取码：iksk 
-数据集是 10 月 23 日 更新后的新数据集，包含训练集、验证集、测试集A/B.
-另外最近有同学拿到类似的数据，想做分类的任务，但是这份代码是针对这次比赛开源的，在数据读取方式上会有区别，对于新手来说不太友好，我开源了一份针对图像分类任务的代码，并附上简单教程，相信看完后能比较轻松使用 pytorch 进行图像分类。
+## 目录
 
-教程: [从实例掌握 pytorch 进行图像分类](http://www.spytensor.com/index.php/archives/21/)
+- [环境依赖](#环境依赖)
+- [数据准备](#数据准备)
+- [使用方法](#使用方法)
+- [方案说明](#方案说明)
+- [项目结构](#项目结构)
+- [2026 现代化改造记录](#2026-现代化改造记录)
+- [相关链接](#相关链接)
 
-代码: [pytorch-image-classification](https://github.com/spytensor/pytorch-image-classification)
+---
 
-**2018年 10 月 30 日更新**
+## 环境依赖
 
-新增 `data_aug.py` 用于线下数据增强，由于时间问题，这个比赛不再做啦，这些增强方式大家有需要可以研究一下，支持的增强方式：
+代码已从原始的 `python3.6 / pytorch0.4.1` 迁移到 **PyTorch 2.x**，并支持 **CPU / GPU 自动切换**与**混合精度 (AMP)**。
 
-- 高斯噪声
-- 亮度变化
-- 左右翻转
-- 上下翻转
-- 色彩抖动
-- 对比度变化
-- 锐度变化
+```bash
+pip install -r requirements.txt
+```
 
-注：对比度增强在可视化后，主观感觉特征更明显了，目前我还未跑完。提醒一下，如果做了对比度增强，在测试集的时候最好也做一下。
+主要依赖：
 
-个人博客：[超杰](http://spytensor.com/)
+| 包 | 版本要求 |
+| --- | --- |
+| python | >= 3.8 |
+| torch | >= 2.0 |
+| torchvision | >= 0.15 |
+| scikit-learn | 用于分层划分 |
+| pandas / numpy | 数据处理 |
+| pillow / opencv-python / scikit-image | 图像与离线增强 |
+| tqdm | 进度条 |
 
-比赛地址：[农作物病害检测](https://challenger.ai/competition/pdr2018)
+运行设备在 [`config.py`](config.py) 中自动探测：有 GPU 时用 CUDA + AMP，无 GPU 时回退到 CPU。
 
-完整代码地址：[plants_disease_detection](https://github.com/spytensor/plants_disease_detection)
+## 数据准备
 
-    注：
-    欢迎大佬学习交流啊，这份代码可改进的地方太多了,
-    如果大佬们有啥改进的意见请指导！
-    联系方式：zhuchaojie@buaa.edu.cn
+1. 下载数据集（10 月 23 日更新后的新版，含训练/验证/测试 A、B）：
+   [百度网盘](https://pan.baidu.com/s/16f1nQchS-zBtzSWn9Guyyg)，提取码：`iksk`
+2. 将**测试集**图片复制到 `data/test/` 下。
+3. 将**训练集 + 验证集**的图片都复制到 `data/temp/images/`，两个 `json` 标注文件放到 `data/temp/labels/`。
+4. 执行 `move.py` 按类别整理图片到 `data/train/<类别>/`：
 
-**成绩**：线上 0.8805，线下0.875，由于划分存在随机性，可能复现会出现波动，已经尽可能排除随机种子的干扰了。
+   ```bash
+   python move.py
+   ```
 
-## 提醒
+   > 该脚本会删除样本异常的第 44、45 类，并把之后的类别编号整体前移 2 位（`num_classes` 因此为 59）。`main.py` 的 `test()` 会做逆映射，把预测结果还原回官方原始编号。
 
-`main.py` 中的test函数已经修正，执行后在 `./submit/`中会得到提交格式的 json 文件,现已支持 Focalloss 和交叉验证，需要的自行修改一下就可以了。
-依赖中的 pytorch 版本请保持一致，不然可能会有一些小 BUG。
+## 使用方法
 
-### 1. 依赖
+```bash
+# 训练 + 在测试集上推理，生成提交文件
+python main.py
+```
 
-    python3.6 pytorch0.4.1
+- 训练日志写入 `logs/log_train.txt`；
+- 权重保存在 `checkpoints/`，最优模型在 `checkpoints/best_model/`；
+- 训练结束后自动加载最优模型对测试集推理，结果写入 `submit/baseline.json`（官方提交格式）。
 
-### 2. 关于数据的处理
+关键超参数（在 [`config.py`](config.py) 中调整）：
 
-首先说明，使用的数据为官方更新后的数据，并做了一个统计分析（下文会给出），最后决定删除第 44 类和第 45 类。
-并且由于数据分布的原因，我将 train 和 val 数据集合并后，采用随机划分。
+| 参数 | 默认值 | 说明 |
+| --- | --- | --- |
+| `epochs` | 40 | 训练轮数 |
+| `batch_size` | 8 | 650×650 大图较吃显存，按需调整 |
+| `img_height/img_width` | 650 | 输入尺寸 |
+| `lr` | 1e-4 | Adam 学习率 |
+| `use_amp` | True | 混合精度（仅 CUDA 生效） |
+| `use_focal_loss` | False | 置 True 改用（已修复的）FocalLoss |
 
-数据增强方式：
+## 方案说明
 
-- RandomRotation(30)
-- RandomHorizontalFlip()
-- RandomVerticalFlip()
-- RandomAffine(45)
+- **模型**：ResNet50（ImageNet 预训练），替换全局池化为 `AdaptiveAvgPool2d(1)` 并接 59 类分类头。
+- **数据划分**：合并 train/val 后用 `StratifiedKFold` 思路做分层随机划分（`test_size=0.15`）。
+- **数据增强**（在线，见 [`dataset/dataloader.py`](dataset/dataloader.py)）：
+  `RandomRotation(30)`、`RandomHorizontalFlip`、`RandomVerticalFlip`、`RandomAffine(45)`。
+- **离线增强**（可选，见 [`data_aug.py`](data_aug.py)）：高斯噪声、亮度/对比度变化、翻转等。
+- **优化器**：Adam（`amsgrad=True`），`StepLR`（每 10 epoch × 0.1）。
+- **损失**：默认 `CrossEntropyLoss`，可切换 FocalLoss。
 
-图片尺寸选择了 650，暂时没有对这个尺寸进行调优（毕竟太忙了。。）
+## 项目结构
 
-### 3. 模型选择
+```
+.
+├── config.py              # 全部超参数、设备与开关
+├── move.py                # 按标注把图片整理进类别目录
+├── data_aug.py            # 离线数据增强（可选）
+├── dataset/dataloader.py  # Dataset / DataLoader / transforms
+├── models/model.py        # ResNet50 分类网络
+├── utils.py               # AverageMeter / accuracy / Logger / FocalLoss 等
+└── main.py                # 训练、评估、测试主流程
+```
 
-模型目前就尝试了 resnet50，后续有卡的话再说吧。。。
+## 2026 现代化改造记录
 
-### 4. 超参数设置
+在原 2018 版基础上做了如下修复与升级：
 
-详情在 config.py 中
+**Bug 修复**
+- **FocalLoss 数学错误**：原实现对 batch 平均后的标量做加权，退化成普通交叉熵。现改为 `reduction='none'` 逐样本计算调制因子 `(1-pt)^γ`，并支持 `mean/sum/none`。
+- **删除坏掉的 `DenseModel`**：forward 里定义了却未使用的层、写死的 pool 尺寸、`sigmoid` + `CrossEntropyLoss` 双重激活等问题，整体移除（训练本就走 `get_net`）。
+- **`data_aug.py` 语法错误**：修复错位的 `try/except` 缩进。
 
-### 5.使用方法
+**PyTorch 2.x 迁移**
+- 移除已废弃的 `torch.autograd.Variable`，改用 `tensor.to(device)`。
+- 预训练加载 `pretrained=True` → `weights=ResNet50_Weights.IMAGENET1K_V1`。
+- `scheduler.step(epoch)` 旧用法 → `scheduler.step()`，并移到 epoch 末尾。
+- `torch.load(..., weights_only=False, map_location=device)` 显式化，兼容新默认值。
+- Pillow 常量 `Image.FLIP_*` → `Image.Transpose.FLIP_*`（新版已移除旧别名）。
 
-- 第一步：将测试集图片复制到 `data/test/` 下
-- 第二步：将训练集合验证集中的图片都复制到 `data/temp/images/` 下，将两个 `json` 文件放到 `data/temp/labels/` 下
-- 执行 move.py 文件
-- 执行 main.py 进行训练
+**新增能力**
+- **CPU / GPU 自动切换**：无显卡也能跑。
+- **混合精度 (AMP)**：`use_amp` 开关，CUDA 上显著省显存、提速。
+- `DataLoader` 增加 `num_workers`，读图统一 `convert("RGB")` 防止灰度/RGBA 崩溃。
+- 修正 `img_weight` → `img_width` 命名及 `Resize` 的 (H, W) 顺序。
 
-### 6.数据分布图
+## 相关链接
 
-训练集
-
-![train](http://www.spytensor.com/images/plants/train.png)
-
-验证集
-
-![val](http://www.spytensor.com/images/plants/val.png)
-
-全部数据集
-
-![all](http://www.spytensor.com/images/plants/all.png)
+- 完整代码：[plants_disease_detection](https://github.com/spytensor/plants_disease_detection)
+- 图像分类入门教程与代码：[从实例掌握 pytorch 进行图像分类](http://www.spytensor.com/index.php/archives/21/) · [pytorch-image-classification](https://github.com/spytensor/pytorch-image-classification)
+- 个人博客：[超杰](http://spytensor.com/)
+- 联系方式：zhuchaojie@buaa.edu.cn

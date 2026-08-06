@@ -1,0 +1,9 @@
+__pycache__/
+*.py[cod]
+*.pth.tar
+checkpoints/
+logs/
+submit/
+data/
+aug/
+.DS_Store
