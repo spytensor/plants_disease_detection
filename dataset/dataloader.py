@@ -35,13 +35,13 @@ class ChaojieDataset(Dataset):
         if transforms is None:
             if self.test or not train:
                 self.transforms = T.Compose([
-                    T.Resize((config.img_weight,config.img_height)),
+                    T.Resize((config.img_height,config.img_width)),
                     T.ToTensor(),
                     T.Normalize(mean = [0.485,0.456,0.406],
                                 std = [0.229,0.224,0.225])])
             else:
                 self.transforms  = T.Compose([
-                    T.Resize((config.img_weight,config.img_height)),
+                    T.Resize((config.img_height,config.img_width)),
                     T.RandomRotation(30),
                     T.RandomHorizontalFlip(),
                     T.RandomVerticalFlip(),
@@ -54,12 +54,12 @@ class ChaojieDataset(Dataset):
     def __getitem__(self,index):
         if self.test:
             filename = self.imgs[index]
-            img = Image.open(filename)
+            img = Image.open(filename).convert("RGB")
             img = self.transforms(img)
             return img,filename
         else:
             filename,label = self.imgs[index] 
-            img = Image.open(filename)
+            img = Image.open(filename).convert("RGB")
             img = self.transforms(img)
             return img,label
     def __len__(self):

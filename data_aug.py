@@ -27,11 +27,8 @@ def changeLight(img):
     img = exposure.adjust_gamma(img, rate) #大于1为调暗，小于1为调亮;1.05
     return img
 
-try:
-    for i in range(59):
-        os.makedirs(new_path + os.sep + str(i))
-    except:
-        pass
+for i in range(59):
+    os.makedirs(new_path + os.sep + str(i), exist_ok=True)
 
 for raw_dir_name in range(59):
 
@@ -71,9 +68,9 @@ for raw_dir_name in range(59):
 
         #1.翻转 
 
-        img_flip_left_right = img.transpose(Image.FLIP_LEFT_RIGHT)
+        img_flip_left_right = img.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
 
-        img_flip_top_bottom = img.transpose(Image.FLIP_TOP_BOTTOM)
+        img_flip_top_bottom = img.transpose(Image.Transpose.FLIP_TOP_BOTTOM)
 
         #2.旋转 
 
